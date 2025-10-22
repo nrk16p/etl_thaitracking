@@ -19,9 +19,8 @@ pipeline {
             steps {
                 sh '''
                     # Check if Chrome is already installed
-                    if command -v google-chrome &> /dev/null; then
+                    if google-chrome --version 2>/dev/null; then
                         echo "✅ Chrome is already installed"
-                        google-chrome --version
                     else
                         echo "📦 Installing Chrome..."
                         
