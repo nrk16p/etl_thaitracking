@@ -181,6 +181,7 @@ def login_and_scrape():
                 if row_data["No."] == "":
                    all_data.append({
                        "plate_number": plate_master[count],
+                        "truck_number": plate_master[count],
                        "gps_vendor": "thaitracking",
                        "date": TODAY_MINUS_1,
                        "distance": row_data["distance"]
