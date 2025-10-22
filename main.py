@@ -41,6 +41,7 @@ def create_driver(headless=True):
     try:
         from webdriver_manager.chrome import ChromeDriverManager
         import os
+        import stat
         
         # Get the chromedriver path
         driver_path = ChromeDriverManager().install()
@@ -59,6 +60,11 @@ def create_driver(headless=True):
                 actual_driver = os.path.join(parent_dir, 'chromedriver')
                 if os.path.exists(actual_driver):
                     driver_path = actual_driver
+        
+        # Make sure chromedriver is executable
+        if os.path.exists(driver_path):
+            os.chmod(driver_path, stat.S_IRWXU | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+            print(f"✅ Set executable permissions on ChromeDriver")
         
         print(f"Using ChromeDriver at: {driver_path}")
         service = Service(driver_path)
