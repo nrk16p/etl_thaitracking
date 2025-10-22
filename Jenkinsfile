@@ -31,7 +31,10 @@ pipeline {
         stage('Run ThaiTracking GPS Scraper') {
             steps {
                 script {
+                    def targetDate = params.TARGET_DATE ?: sh(script: 'date -d "yesterday" +%Y-%m-%d', returnStdout: true).trim()
+                    echo "Syncing ThaiTracking GPS data for date: ${targetDate}"
                     
+                    env.TARGET_DATE = targetDate
                 }
                 
                 sh '''
