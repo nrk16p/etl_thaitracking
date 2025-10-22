@@ -8,12 +8,39 @@ pipeline {
         BACKEND_URL = 'https://be-analytics.onrender.com/drivingdistance/bulk'
     }
     
-
-    
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+        
+        stage('Install Chrome') {
+            steps {
+                sh '''
+                    # Check if Chrome is already installed
+                    if command -v google-chrome &> /dev/null; then
+                        echo "✅ Chrome is already installed"
+                        google-chrome --version
+                    else
+                        echo "📦 Installing Chrome..."
+                        
+                        # Install dependencies
+                        apt-get update
+                        apt-get install -y wget gnupg
+                        
+                        # Add Chrome repository
+                        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+                        echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+                        
+                        # Install Chrome
+                        apt-get update
+                        apt-get install -y google-chrome-stable
+                        
+                        echo "✅ Chrome installed successfully"
+                        google-chrome --version
+                    fi
+                '''
             }
         }
         
@@ -30,13 +57,6 @@ pipeline {
         
         stage('Run ThaiTracking GPS Scraper') {
             steps {
-                script {
-                    def targetDate = params.TARGET_DATE ?: sh(script: 'date -d "yesterday" +%Y-%m-%d', returnStdout: true).trim()
-                    echo "Syncing ThaiTracking GPS data for date: ${targetDate}"
-                    
-                    env.TARGET_DATE = targetDate
-                }
-                
                 sh '''
                     . venv/bin/activate
                     python main.py
