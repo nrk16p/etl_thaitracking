@@ -39,7 +39,12 @@ def create_driver(headless=True):
     chrome_opts.add_experimental_option('useAutomationExtension', False)
 
     try:
-        service = Service(ChromeDriverManager().install())
+        # Clear cache and reinstall ChromeDriver
+        from webdriver_manager.chrome import ChromeDriverManager
+        from webdriver_manager.core.os_manager import ChromeType
+        
+        driver_path = ChromeDriverManager().install()
+        service = Service(driver_path)
         driver = webdriver.Chrome(service=service, options=chrome_opts)
         driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         return driver

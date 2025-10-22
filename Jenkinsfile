@@ -50,6 +50,9 @@ pipeline {
                     . venv/bin/activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
+                    
+                    # Clear webdriver-manager cache to force fresh download
+                    rm -rf /var/jenkins_home/.wdm
                 '''
             }
         }
