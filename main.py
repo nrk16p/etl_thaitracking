@@ -39,17 +39,36 @@ def create_driver(headless=True):
     chrome_opts.add_experimental_option('useAutomationExtension', False)
 
     try:
-        # Clear cache and reinstall ChromeDriver
         from webdriver_manager.chrome import ChromeDriverManager
-        from webdriver_manager.core.os_manager import ChromeType
+        import os
         
+        # Get the chromedriver path
         driver_path = ChromeDriverManager().install()
+        
+        # Fix the path if it points to wrong file
+        if 'THIRD_PARTY_NOTICES' in driver_path or not os.access(driver_path, os.X_OK):
+            # Navigate to the correct chromedriver binary
+            driver_dir = os.path.dirname(driver_path)
+            actual_driver = os.path.join(driver_dir, 'chromedriver')
+            
+            if os.path.exists(actual_driver):
+                driver_path = actual_driver
+            else:
+                # Look for chromedriver in parent directory
+                parent_dir = os.path.dirname(driver_dir)
+                actual_driver = os.path.join(parent_dir, 'chromedriver')
+                if os.path.exists(actual_driver):
+                    driver_path = actual_driver
+        
+        print(f"Using ChromeDriver at: {driver_path}")
         service = Service(driver_path)
         driver = webdriver.Chrome(service=service, options=chrome_opts)
         driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         return driver
     except Exception as e:
         print(f"❌ Error creating driver: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 def login_and_scrape():
