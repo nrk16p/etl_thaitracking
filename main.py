@@ -176,17 +176,26 @@ def login_and_scrape():
                 cells = row.find_all('td')
                 if len(cells) != len(headers):
                     continue
-                row_data = {headers[i]: cells[i].get_text(strip=True) for i in range(len(headers))}
+        
+                row_data = {
+                    headers[i]: cells[i].get_text(strip=True)
+                    for i in range(len(headers))
+                }
                 row_data['table_index'] = table_index
+        
                 if row_data["No."] == "":
-                   all_data.append({
-                       "plate_number": plate_master[count],
+                    # 🔧 convert distance
+                    raw_distance = row_data.get("distance", "")
+                    distance = 0 if raw_distance == "-" or raw_distance == "" else raw_distance
+        
+                    all_data.append({
+                        "plate_number": plate_master[count],
                         "truck_number": plate_master[count],
-                       "gps_vendor": "thaitracking",
-                       "date": TODAY_MINUS_1,
-                       "distance": row_data["distance"]
-                   })
-                   count += 1
+                        "gps_vendor": "thaitracking",
+                        "date": TODAY_MINUS_1,
+                        "distance": distance
+                    })
+                    count += 1
 
         print(f"✅ Successfully scraped {len(all_data)} records")
         print(json.dumps(all_data, indent=4))
